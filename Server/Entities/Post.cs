@@ -6,13 +6,13 @@ public class Post
     public string Title { get; set; }
     public string Body { get; set; }
     public int NoOfLikes { get; set; }
-    public List<Comment> ListOfComments { get; set; }
+    public int AuthorId { get; set; }
 
-    public Post(string title, string body)
+    public Post(string title, string body, int authorId)
     {
         Title = title;
         Body = body;
+        AuthorId = authorId;
         NoOfLikes = 0; 
-        ListOfComments = new List<Comment>();
     }
 }
