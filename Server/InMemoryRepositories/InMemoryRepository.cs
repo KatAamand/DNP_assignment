@@ -83,8 +83,8 @@ public class InMemoryRepository<T> : IRepository<T> where T : class, IEntity
         return Task.FromResult(entity);  
     }
 
-    public IQueryable<T> GetManyAsync()
+    public Task<IQueryable<T>> GetManyAsync()
     {
-        return entities.AsQueryable();
+        return Task.FromResult(entities.AsQueryable());
     }
 }

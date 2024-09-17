@@ -8,5 +8,5 @@ public interface IRepository<T>
     Task UpdateAsync(T entity);
     Task DeleteAsync(int id);
     Task<T> GetSingleAsync(int id);
-    IQueryable<T> GetManyAsync();
+    Task<IQueryable<T>> GetManyAsync();
 }
