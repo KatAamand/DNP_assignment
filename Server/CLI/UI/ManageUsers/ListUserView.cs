@@ -14,7 +14,7 @@ public class ListUserView
 
     public async Task Show()
     {
-        var users = (await repository.GetManyAsync()).ToList(); // Await det asynkrone kald og brug ToList()
+        var users = (await repository.GetManyAsync()).ToList(); 
 
         if (users.Any())
         {
