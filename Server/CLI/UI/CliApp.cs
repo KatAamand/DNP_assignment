@@ -43,7 +43,7 @@ public class CliApp
                     listPostsView.ShowFilterMenu();
                     break;
                 case "2":
-                    var createPostView = new CreatePostView(postRepository); // Opret ny post
+                    var createPostView = new CreatePostView(postRepository, userRepository); // Opret ny post
                     createPostView.Show();
                     break;
                 case "3":
