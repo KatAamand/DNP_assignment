@@ -12,8 +12,21 @@ public class ListUserView
         this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
-    public void Show()
+    public async Task Show()
     {
-        throw new NotImplementedException();
+        var users = (await repository.GetManyAsync()).ToList(); // Await det asynkrone kald og brug ToList()
+
+        if (users.Any())
+        {
+            Console.WriteLine("Liste over brugere:");
+            foreach (var user in users)
+            {
+                Console.WriteLine($"ID: {user.Id}, Brugernavn: {user.Username}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ingen brugere fundet.");
+        }
     }
 }
