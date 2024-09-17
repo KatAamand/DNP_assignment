@@ -11,7 +11,7 @@ public class Post : IEntity
     
     public Post(){}
 
-    public Post(string title, string body, int authorId)
+    public Post(string title, int authorId, string body)
     {
         Title = title;
         Body = body;
