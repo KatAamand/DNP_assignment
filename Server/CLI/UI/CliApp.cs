@@ -40,19 +40,19 @@ public class CliApp
             {
                 case "1":
                     var listPostsView = new ListPostsView(postRepository); // Viser dagens posts
-                    listPostsView.ShowFilterMenu();
+                    await listPostsView.ShowFilterMenu();
                     break;
                 case "2":
                     var createPostView = new CreatePostView(postRepository, userRepository); // Opret ny post
-                    createPostView.Show();
+                    await createPostView.Show();
                     break;
                 case "3":
                     var createUserView = new CreateUserView(userRepository); // Opret ny bruger
-                    createUserView.Show();
+                    await createUserView.Show();
                     break;
                 case "4":
                     var listUserView = new ListUserView(userRepository); // Se alle brugere
-                    listUserView.Show();
+                    await listUserView.Show();
                     break;
                 case "5":
                     running = false; // Afslut programmet
@@ -62,6 +62,10 @@ public class CliApp
                     break;
             }
             
+            Console.WriteLine();
+            Console.WriteLine("Tryk på en tast for at fortsætte...");
+            Console.ReadKey();
+            Console.WriteLine();
         }
     }
 }
