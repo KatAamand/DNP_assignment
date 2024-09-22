@@ -39,7 +39,7 @@ public class CliApp
             switch (input)
             {
                 case "1":
-                    var listPostsView = new ListPostsView(postRepository); // Viser dagens posts
+                    var listPostsView = new ListPostsView(postRepository, commentRepository, userRepository); // Viser dagens posts
                     await listPostsView.ShowFilterMenu();
                     break;
                 case "2":

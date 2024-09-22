@@ -1,13 +1,18 @@
-﻿using Entities;
+﻿using CLI.UI.ManagePosts;
+using Entities;
 using RepositoryContracts;
 
 public class ListPostsView
 {
     private readonly IRepository<Post> postRepository;
+    private readonly IRepository<Comment> commentRepository;
+    private readonly IRepository<User> userRepository;
 
-    public ListPostsView(IRepository<Post> postRepository)
+    public ListPostsView(IRepository<Post> postRepository, IRepository<Comment> commentRepository, IRepository<User> userRepository)
     {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
     }
 
     public async Task ShowFilterMenu()
@@ -17,6 +22,7 @@ public class ListPostsView
         Console.WriteLine("2. Posts fra en bestemt dato");
         Console.WriteLine("3. Posts fra en bestemt bruger");
         Console.WriteLine("4. Alle posts");
+        Console.WriteLine("5. Specifik post");
 
         Console.Write("Indtast valg: ");
         string? filterChoice = Console.ReadLine();
@@ -35,6 +41,9 @@ public class ListPostsView
             case "4":
                 await Show(onlyToday: false);
                 break;
+            case "5":
+                await ShowSpecificPost(); 
+                break; 
             default:
                 Console.WriteLine("Ugyldigt valg. Prøv igen.");
                 break;
@@ -91,8 +100,7 @@ public class ListPostsView
             Console.WriteLine(header);
             foreach (var post in posts)
             {
-                Console.WriteLine($"ID: {post.Id}, Titel: {post.Title}, AuthorID: {post.AuthorId}, noOfVotes {post.NoOfVotes}");
-                Console.WriteLine(post.Body);
+                Console.WriteLine($"ID: {post.Id}, Titel: {post.Title}, noOfVotes {post.NoOfVotes}");
                 Console.WriteLine();
             }
         }
@@ -101,4 +109,27 @@ public class ListPostsView
             Console.WriteLine("Ingen posts fundet.");
         }
     }
+    
+    public async Task ShowSpecificPost()
+    {
+        Console.Write("Indtast post-ID: ");
+        if (int.TryParse(Console.ReadLine(), out int postId))
+        {
+            Post post = await postRepository.GetSingleAsync(postId);
+            if (post != null)
+            {
+               var viewSinglePost = new ViewSinglePost(postRepository, commentRepository, userRepository);
+               await viewSinglePost.showPostAndMenu(post.Id); 
+            }
+            else
+            {
+                Console.WriteLine("Post med det angivne ID blev ikke fundet.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ugyldigt post-ID. Prøv igen.");
+        }
+    }
+
 }

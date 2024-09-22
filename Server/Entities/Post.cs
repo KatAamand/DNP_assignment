@@ -19,4 +19,5 @@ public class Post : IEntity
         NoOfVotes = 0; 
         Created = DateOnly.FromDateTime(DateTime.Now); 
     }
+
 }
