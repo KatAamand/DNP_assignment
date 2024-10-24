@@ -5,6 +5,7 @@ using RepositoryContracts;
 
 namespace WebAPI.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -40,21 +41,23 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> GetSingleUser(int id)
         {
-            var user = await _userRepository.GetSingleAsync(id);
-
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userRepository.GetSingleAsync(id);
+                var userDto = new UserDTO
+                {
+                    Id = user.Id,
+                    Username = user.Username
+                };
+        
+                return Ok(userDto);
             }
-
-            var userDTO = new UserDTO
+            catch (KeyNotFoundException ex)
             {
-                Id = user.Id,
-                Username = user.Username
-            };
-
-            return Ok(userDTO);
+                return NotFound(ex.Message);
+            }
         }
+
 
         // Get all users
         [HttpGet]

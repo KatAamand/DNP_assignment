@@ -5,7 +5,8 @@ using RepositoryContracts;
 
 namespace WebAPI.Controllers;
 
-[Microsoft.AspNetCore.Components.Route("api/[controller]")]
+[ApiController]
+[Route("api/[controller]")]
 public class PostController : ControllerBase
 {
     private readonly IRepository<Post> _postRepository;

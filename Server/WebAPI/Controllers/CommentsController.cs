@@ -5,6 +5,7 @@ using RepositoryContracts;
 
 namespace WebAPI.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class CommentController : ControllerBase
     {
