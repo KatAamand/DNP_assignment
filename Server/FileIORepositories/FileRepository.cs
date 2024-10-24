@@ -63,18 +63,17 @@ public class FileRepository<T> : IRepository<T> where T : class, IEntity
     public async Task<T> GetSingleAsync(int id)
     {
         var entities = await ReadFromFileAsync();
-        
+    
         var entityToReturn = entities.SingleOrDefault(e => e.Id == id);
 
-        if (entityToReturn != null)
-        {
-            return entityToReturn;
-        }
-        else
+        if (entityToReturn == null)
         {
             throw new KeyNotFoundException($"Entity with Id {id} not found");
         }
+    
+        return entityToReturn;
     }
+
 
     public async Task<IQueryable<T>> GetManyAsync()
     {
