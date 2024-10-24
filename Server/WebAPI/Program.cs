@@ -11,9 +11,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IRepository<Post>, FileRepository<Post>>();
-builder.Services.AddScoped<IRepository<User>, FileRepository<User>>();
-builder.Services.AddScoped<IRepository<Comment>, FileRepository<Comment>>();
+builder.Services.AddScoped<IRepository<Post>>(provider => new FileRepository<Post>("posts.json"));
+builder.Services.AddScoped<IRepository<User>>(provider => new FileRepository<User>("users.json"));
+builder.Services.AddScoped<IRepository<Comment>>(provider => new FileRepository<Comment>("comments.json"));
 
 var app = builder.Build();
 
