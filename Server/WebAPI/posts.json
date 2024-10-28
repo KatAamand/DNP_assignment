@@ -46,5 +46,13 @@
     "NoOfVotes": 0,
     "AuthorId": 1,
     "Created": "2024-10-28T15:21:49.7676865+01:00"
+  },
+  {
+    "Id": 7,
+    "Title": "This is a test",
+    "Body": "this is also a test",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T22:25:40.911898+01:00"
   }
 ]

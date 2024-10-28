@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "Id": 1,
+    "Body": "test comment",
+    "AuthorId": 1,
+    "PostId": 1
+  },
+  {
+    "Id": 2,
+    "Body": "test comment",
+    "AuthorId": 1,
+    "PostId": 1
+  },
+  {
+    "Id": 3,
+    "Body": "test comment",
+    "AuthorId": 1,
+    "PostId": 7
+  }
+]
