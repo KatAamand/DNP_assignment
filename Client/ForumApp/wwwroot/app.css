@@ -49,3 +49,22 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+/* Floating Action Button Styles */
+.fab {
+    position: fixed;
+    bottom: 20px; 
+    right: 20px; 
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; 
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+    z-index: 1000; 
+}
+
+.fab i {
+    color: #fff !important; 
+}
