@@ -14,6 +14,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddScoped<IPostService, HttpPostService>();
 builder.Services.AddScoped<IUserService, HttpUserService>();
+builder.Services.AddScoped<ICommentService, HttpCommentService>();
 builder.Services.AddScoped<AuthenticationService>();
 
 

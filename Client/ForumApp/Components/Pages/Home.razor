@@ -3,6 +3,7 @@
 @using ForumApp.Services
 @inject IPostService PostService; 
 @inject AuthenticationService AuthService
+@inject ICommentService CommentService; 
 
 <PageTitle>Home</PageTitle>
 
@@ -25,14 +26,24 @@
             
         @foreach (var post in posts)
         {
-            <div class="col-sm-3">
-                <div class="card">
+            <div class="col-sm-3 mb-3">
+                <div class="card" style="z-index: 10;">
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">@post.Created</h6>
+                        <h6 class="card-subtitle mb-2 text-muted"><small>@post.Created</small></h6>
                         <div class="d-flex justify-content-between">
                             <a href="#" class="card-link">View post</a>
-                            <i class="bi bi-chat-left-quote"></i>
+                            
+                            <!-- Display comment count with icon -->
+                            @{
+                                int commentCount = commentCounts.ContainsKey(post.Id) ? commentCounts[post.Id] : 0;
+                            }
+                            <span class="d-flex align-items-center">
+                                <small class="text-muted me-2">
+                                   @commentCount 
+                                </small>
+                                <i class="bi bi-chat-left-quote text-muted"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -77,6 +88,7 @@
 
     private List<PostDTO>? posts = new();
     bool showCreateNewPostModal = false;
+    private Dictionary<int, int> commentCounts = new();
 
     // Properties for new post input
     private string newPostTitle = string.Empty;
@@ -88,6 +100,12 @@
         try
         {
             posts = await PostService.GetPostsAsync();
+            
+            foreach (var post in posts)
+            {
+                commentCounts[post.Id] = await CommentService.GetCommentCountAsync(post.Id);
+            }
+            
             posts = posts.OrderByDescending(post => post.Created).ToList();
         }
         catch (Exception e)

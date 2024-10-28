@@ -98,6 +98,13 @@ public class FileRepository<T> : IRepository<T> where T : class, IEntity
 
         throw new NotSupportedException($"GetSingleAsync(string) is not supported for type '{typeof(T).Name}'");
     }
+    
+    // Count number of entities
+    public async Task<int> CountAsync(Func<T, bool> predicate)
+    {
+        var entities = await ReadFromFileAsync();
+        return entities.Count(predicate);
+    }
 
 
     // Helper functions 

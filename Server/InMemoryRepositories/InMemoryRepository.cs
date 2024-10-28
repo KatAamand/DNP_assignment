@@ -93,4 +93,8 @@ public class InMemoryRepository<T> : IRepository<T> where T : class, IEntity
         throw new NotImplementedException();
     }
 
+    public async Task<int> CountAsync(Func<T, bool> predicate)
+    {
+        throw new NotImplementedException();
+    }
 }
