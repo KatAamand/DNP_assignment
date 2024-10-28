@@ -15,7 +15,7 @@ public class HttpUserService : IUserService
     public async Task<UserDTO> AddUserAsync(CreateUserDTO user)
     {
         HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("users", user);
-        string response = await httpResponse.Content.ReadAsStringAsync();
+        var response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
             throw new Exception(response);

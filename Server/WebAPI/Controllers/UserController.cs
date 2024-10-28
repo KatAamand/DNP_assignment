@@ -15,6 +15,35 @@ namespace WebAPI.Controllers
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
+        
+        // Login user 
+        [HttpPost("login")]
+        public async Task<ActionResult> Login([FromBody] LoginRequestDTO loginRequest)
+        {
+            if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) ||
+                string.IsNullOrEmpty(loginRequest.Password))
+            {
+                return BadRequest("Invalid login request");
+            }
+            
+            var user = (await _userRepository.GetManyAsync())
+                .FirstOrDefault(u => u.Username == loginRequest.Username);
+            
+            // Validation
+            if (user == null || user.Password != loginRequest.Password)
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+            
+            var response = new LoginResponseDTO
+            {
+                IsAuthenticated = true,
+                UserId = user.Id
+            };
+            
+            
+            return Ok(response);
+        }
 
         // Create a new user
         [HttpPost]
