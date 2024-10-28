@@ -68,3 +68,7 @@ h1:focus {
 .fab i {
     color: #fff !important; 
 }
+
+.card {
+    position: inherit; 
+}
