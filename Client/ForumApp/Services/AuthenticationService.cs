@@ -34,7 +34,7 @@ public class AuthenticationService : IAuthenticationService
         try
         {
             // Send the POST request to the server
-            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("api/user/login", request);
+            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("/users/login", request);
 
             if (httpResponse.IsSuccessStatusCode)
             {

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using DTO;
 
 namespace ForumApp.Services;
@@ -12,18 +13,26 @@ public class HttpUserService : IUserService
         _httpClient = httpClient;
     }
 
-    public async Task<UserDTO> AddUserAsync(CreateUserDTO user)
+    public async Task<bool> AddUserAsync(string username, string password)
     {
-        HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("users", user);
-        var response = await httpResponse.Content.ReadAsStringAsync();
-        if (!httpResponse.IsSuccessStatusCode)
+        CreateUserDTO newUser = new CreateUserDTO
         {
-            throw new Exception(response);
+            Username = username,
+            Password = password
+        }; 
+        
+        HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("users", newUser);
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            return true;
         }
-        return JsonSerializer.Deserialize<UserDTO>(response, new JsonSerializerOptions
+        else
         {
-            PropertyNameCaseInsensitive = true
-        })!;
+            string responseContent = await httpResponse.Content.ReadAsStringAsync();
+            Console.Error.WriteLine($"Failed to create user: {httpResponse.StatusCode} - {responseContent}");
+            return false;
+        }
     }
 
     public async Task UpdateUserAsync(int id, UserDTO user)

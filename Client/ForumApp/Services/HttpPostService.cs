@@ -19,7 +19,7 @@ public class HttpPostService : IPostService
 
     public async Task<PostDTO> AddPostAsync(CreatePostDTO createPostDto)
     {
-        HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("api/posts", createPostDto);
+        HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("posts", createPostDto);
 
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -39,7 +39,7 @@ public class HttpPostService : IPostService
 
     public async Task UpdatePostAsync(int id, PostDTO postDto)
     {
-        HttpResponseMessage httpResponse = await _httpClient.PutAsJsonAsync($"api/posts/{id}", postDto);
+        HttpResponseMessage httpResponse = await _httpClient.PutAsJsonAsync($"posts/{id}", postDto);
 
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -50,7 +50,7 @@ public class HttpPostService : IPostService
 
     public async Task<bool> DeletePostAsync(int id)
     {
-        HttpResponseMessage httpResponse = await _httpClient.DeleteAsync($"api/posts/{id}");
+        HttpResponseMessage httpResponse = await _httpClient.DeleteAsync($"posts/{id}");
 
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -63,7 +63,7 @@ public class HttpPostService : IPostService
 
     public async Task<PostDTO> GetPostAsync(int id)
     {
-        HttpResponseMessage httpResponse = await _httpClient.GetAsync($"api/posts/{id}");
+        HttpResponseMessage httpResponse = await _httpClient.GetAsync($"posts/{id}");
 
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -82,7 +82,7 @@ public class HttpPostService : IPostService
 
     public async Task<List<PostDTO>> GetPostsAsync()
     {
-        HttpResponseMessage httpResponse = await _httpClient.GetAsync("api/posts");
+        HttpResponseMessage httpResponse = await _httpClient.GetAsync("posts");
 
         if (!httpResponse.IsSuccessStatusCode)
         {

@@ -9,14 +9,14 @@ using System.Linq;
 namespace WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/posts")]
-    public class PostController : ControllerBase
+    [Route("[controller]")]
+    public class PostsController : ControllerBase
     {
         private readonly IRepository<Post> _postRepository;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Comment> _commentRepository;
 
-        public PostController(IRepository<Post> postRepository, IRepository<User> userRepository,
+        public PostsController(IRepository<Post> postRepository, IRepository<User> userRepository,
             IRepository<Comment> commentRepository)
         {
             _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository));

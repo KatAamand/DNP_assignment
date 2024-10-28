@@ -6,12 +6,12 @@ using RepositoryContracts;
 namespace WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    [Route("[controller]")]
+    public class UsersController : ControllerBase
     {
         private readonly IRepository<User> _userRepository;
 
-        public UserController(IRepository<User> userRepository)
+        public UsersController(IRepository<User> userRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
@@ -20,35 +20,49 @@ namespace WebAPI.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] LoginRequestDTO loginRequest)
         {
-            if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) ||
-                string.IsNullOrEmpty(loginRequest.Password))
+            try
             {
-                return BadRequest("Invalid login request");
+             if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) ||
+                    string.IsNullOrEmpty(loginRequest.Password))
+                {
+                    return BadRequest("Invalid login request");
+                }
+                
+                var user = (await _userRepository.GetManyAsync())
+                    .FirstOrDefault(u => u.Username == loginRequest.Username);
+                
+                // Validation
+                if (user == null || user.Password != loginRequest.Password)
+                {
+                    return Unauthorized("Invalid username or password.");
+                }
+                
+                var response = new LoginResponseDTO
+                {
+                    IsAuthenticated = true,
+                    UserId = user.Id
+                };
+                
+                
+                return Ok(response);
             }
-            
-            var user = (await _userRepository.GetManyAsync())
-                .FirstOrDefault(u => u.Username == loginRequest.Username);
-            
-            // Validation
-            if (user == null || user.Password != loginRequest.Password)
+            catch (Exception ex)
             {
-                return Unauthorized("Invalid username or password.");
+                Console.Error.WriteLine($"Error creating user: {ex.Message}");
+                return StatusCode(500, "Internal server error");
             }
-            
-            var response = new LoginResponseDTO
-            {
-                IsAuthenticated = true,
-                UserId = user.Id
-            };
-            
-            
-            return Ok(response);
+           
         }
 
         // Create a new user
         [HttpPost]
         public async Task<ActionResult<UserDTO>> CreateUser([FromBody] CreateUserDTO userRequest)
         {
+            if (string.IsNullOrEmpty(userRequest.Username) || string.IsNullOrEmpty(userRequest.Password))
+            {
+                return BadRequest("Username and password are required.");
+            }
+            
             var newUser = new User
             {
                 Username = userRequest.Username,
@@ -63,7 +77,7 @@ namespace WebAPI.Controllers
                 Username = createdUser.Username
             };
 
-            return Created($"/Users/{userDTO.Id}", userDTO);
+            return Created($"/users/{userDTO.Id}", userDTO);
         }
 
         // Get a single user by ID

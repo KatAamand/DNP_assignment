@@ -6,14 +6,14 @@ using RepositoryContracts;
 namespace WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class CommentController : ControllerBase
+    [Route("[controller]")]
+    public class CommentsController : ControllerBase
     {
         private readonly IRepository<Comment> _commentRepository;
         private readonly IRepository<Post> _postRepository;
         private readonly IRepository<User> _userRepository;
 
-        public CommentController(IRepository<Comment> commentRepository, IRepository<Post> postRepository, IRepository<User> userRepository)
+        public CommentsController(IRepository<Comment> commentRepository, IRepository<Post> postRepository, IRepository<User> userRepository)
         {
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
             _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository));
@@ -132,5 +132,15 @@ namespace WebAPI.Controllers
 
             return NoContent();
         }
+        
+        // Get the count of comments for a specific post
+        [HttpGet("count/{postId}")]
+        public async Task<ActionResult<int>> GetCommentCount(int postId)
+        {
+            int commentCount = await _commentRepository.CountAsync(c => c.PostId == postId);
+            return Ok(commentCount);
+        }
+
+      
     }
 }
