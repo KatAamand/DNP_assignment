@@ -1,0 +1,50 @@
+[
+  {
+    "Id": 1,
+    "Title": "gdfgd",
+    "Body": "gfdgd",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T00:00:00"
+  },
+  {
+    "Id": 2,
+    "Title": "yet another post",
+    "Body": "dfklsa\u00E6fkdlsafdvmlsdalkjfdsa jklfdamskvmaksdmfdas fjdk\u00E6jfklsdlfjdajfjdlksjafkljdklasjfkdjlkjafkldjflkdsjfdsjflkdjslkafjdlklfjkdsajfkdjsafkdslafjdksla",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T00:00:00"
+  },
+  {
+    "Id": 3,
+    "Title": "dette er en test",
+    "Body": "virker det? ",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T00:00:00"
+  },
+  {
+    "Id": 4,
+    "Title": "gfdf",
+    "Body": "gfdgdf",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T00:00:00"
+  },
+  {
+    "Id": 5,
+    "Title": "Is it working?",
+    "Body": "maybe??????",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T00:00:00"
+  },
+  {
+    "Id": 6,
+    "Title": "dette er en test",
+    "Body": "test test testt",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-28T15:21:49.7676865+01:00"
+  }
+]
