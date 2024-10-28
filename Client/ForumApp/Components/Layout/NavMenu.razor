@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using ForumApp.Services
+@inject AuthenticationService AuthService
+
+
+<div class="top-row ps-3 navbar navbar-dark d-flex flex-column flex-shrink">
     <div class="container-fluid">
         <a class="navbar-brand" href="">ForumApp</a>
     </div>
@@ -6,17 +10,13 @@
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
+
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
+    
+    <nav class="flex-column mb-auto">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
             </NavLink>
         </div>
 
@@ -25,5 +25,81 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> User
             </NavLink>
         </div>
+        
+        <hr/>
+
+        <div class="nav-item px-3 d-flex flex-column align-items-center">
+            @if (!AuthService.IsLoggedIn)
+            {
+                <button class="btn btn-outline-light" @onclick="ShowLoginModal">Log in</button>
+                <button type="button" class="btn btn-outline-primary mt-4">Create User</button>
+            }
+            else
+            {
+            <span class="text-white">Welcome, @authenticatedUsername!</span>
+            <button class="btn btn-outline-light btn-sm mt-4" @onclick="LogoutAsync">Log out</button>
+            }
+        </div>
     </nav>
 </div>
+
+@if (showLoginModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog" style="z-index: 1100;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" @onclick="HideLoginModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username" />
+                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HideLoginModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="LoginAsync">Log in</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showCreateUserModal) {
+    
+}
+
+@code {
+    private bool showLoginModal = false;
+    private string username = string.Empty; 
+    private string password = string.Empty;
+    private string authenticatedUsername = string.Empty; 
+
+    private void ShowLoginModal()
+    {
+        showLoginModal = true; 
+    }
+
+    private void HideLoginModal()
+    {
+        showLoginModal = false; 
+    }
+
+    private async Task LoginAsync()
+    {
+        bool success = await AuthService.LoginAsync(username, password);
+        if (success)
+        {
+            authenticatedUsername = AuthService.Username;
+            HideLoginModal();
+        } else {
+            // Show errorMessage; 
+        }
+    }
+
+    private async Task LogoutAsync()
+    {
+        AuthService.LogoutAsync();
+    }
+
+}
