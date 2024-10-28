@@ -1,5 +1,6 @@
 ﻿@using ForumApp.Services
 @inject AuthenticationService AuthService
+@inject IUserService UserService
 
 
 <div class="top-row ps-3 navbar navbar-dark d-flex flex-column flex-shrink">
@@ -32,7 +33,7 @@
             @if (!AuthService.IsLoggedIn)
             {
                 <button class="btn btn-outline-light" @onclick="ShowLoginModal">Log in</button>
-                <button type="button" class="btn btn-outline-primary mt-4">Create User</button>
+                <button type="button" class="btn btn-outline-primary mt-4" @onclick="ShowCreateUserModal">Create User</button>
             }
             else
             {
@@ -45,7 +46,7 @@
 
 @if (showLoginModal)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal fade show d-block" tabindex="-1" style="z-index: 1000; background: rgba(0, 0, 0, 0.5);">
         <div class="modal-dialog" style="z-index: 1100;">
             <div class="modal-content">
                 <div class="modal-header">
@@ -53,8 +54,16 @@
                     <button type="button" class="btn-close" @onclick="HideLoginModal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username" />
-                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password" />
+                    @if (showAlert)
+                    {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @alertMessage
+                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
+                    </div>
+                    }
+                    
+                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username"/>
+                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password"/>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="HideLoginModal">Cancel</button>
@@ -66,14 +75,43 @@
 }
 
 @if (showCreateUserModal) {
-    
+    <div class="modal fade show d-block" tabindex="-1" style="z-index: 1000; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog" style="z-index: 1100;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create user</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateUserModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (showAlert)
+                    {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @alertMessage
+                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
+                    </div>
+                    }
+                    
+                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username"/>
+                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password"/>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HideCreateUserModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="createUserAsync">Create user</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
     private bool showLoginModal = false;
+    private bool showCreateUserModal = false; 
     private string username = string.Empty; 
     private string password = string.Empty;
     private string authenticatedUsername = string.Empty; 
+    
+    private bool showAlert = false;
+    private string alertMessage = string.Empty;
 
     private void ShowLoginModal()
     {
@@ -82,7 +120,39 @@
 
     private void HideLoginModal()
     {
-        showLoginModal = false; 
+        showLoginModal = false;
+        ResetInputFields();
+    }
+
+    private void ShowCreateUserModal()
+    {
+        showCreateUserModal = true; 
+    }
+
+    private void HideCreateUserModal()
+    {
+        showCreateUserModal = false; 
+        ResetInputFields();
+    }
+
+    private async Task createUserAsync()
+    {
+        bool success = await UserService.AddUserAsync(username, password);
+
+        if (success)
+        {
+            HideCreateUserModal();
+        }
+        else
+        {
+            ShowAlert("Failed to create user. Please try again.");
+        }
+    }
+
+    private void ResetInputFields()
+    {
+        username = string.Empty;
+        password = string.Empty; 
     }
 
     private async Task LoginAsync()
@@ -93,13 +163,19 @@
             authenticatedUsername = AuthService.Username;
             HideLoginModal();
         } else {
-            // Show errorMessage; 
+            ShowAlert("Login failed. Please check your username and password.");
         }
     }
 
     private async Task LogoutAsync()
     {
         AuthService.LogoutAsync();
+    }
+    
+    private void ShowAlert(string message)
+    {
+        alertMessage = message;
+        showAlert = true;
     }
 
 }
