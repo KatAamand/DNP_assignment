@@ -9,4 +9,5 @@ public interface IRepository<T>
     Task DeleteAsync(int id);
     Task<T> GetSingleAsync(int id);
     Task<IQueryable<T>> GetManyAsync();
+    Task<T> GetSingleAsync(string identifier); 
 }

@@ -7,7 +7,7 @@ public class Post : IEntity
     public string Body { get; set; }
     public int NoOfVotes { get; set; }
     public int AuthorId { get; set; }
-    public DateOnly Created { get; set; }
+    public DateTime Created { get; set; }
     
     public Post(){}
 
@@ -17,7 +17,7 @@ public class Post : IEntity
         Body = body;
         AuthorId = authorId;
         NoOfVotes = 0; 
-        Created = DateOnly.FromDateTime(DateTime.Now); 
+        Created = DateTime.Now; 
     }
 
 }

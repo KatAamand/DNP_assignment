@@ -81,6 +81,24 @@ public class FileRepository<T> : IRepository<T> where T : class, IEntity
         return entities.AsQueryable();
     }
 
+    public async Task<T> GetSingleAsync(string identifier)
+    {
+        var entities = await ReadFromFileAsync();
+        
+        if (typeof(T) == typeof(User))
+        {
+            var user = entities.OfType<User>().SingleOrDefault(u => u.Username == identifier);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with Username '{identifier}' not found");
+            }
+
+            return (T)(IEntity)user;
+        }
+
+        throw new NotSupportedException($"GetSingleAsync(string) is not supported for type '{typeof(T).Name}'");
+    }
+
 
     // Helper functions 
     private async Task<List<T>> ReadFromFileAsync()

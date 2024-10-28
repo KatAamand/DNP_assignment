@@ -56,7 +56,7 @@ public class ListPostsView
 
         if (onlyToday)
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var today = DateTime.Now;
             posts = posts.Where(p => p.Created == today).ToList(); 
         }
 
@@ -68,9 +68,9 @@ public class ListPostsView
         Console.Write("Indtast dato (åååå-mm-dd): ");
         string? dateInput = Console.ReadLine();
 
-        if (DateOnly.TryParse(dateInput, out DateOnly selectedDate))
+        if (DateTime.TryParse(dateInput, out DateTime selectedDate))
         {
-            var posts = (await postRepository.GetManyAsync()).Where(p => p.Created == selectedDate).ToList();
+            var posts = (await postRepository.GetManyAsync()).Where(p => p.Created.Date == selectedDate.Date).ToList();
             DisplayPosts(posts, $"Posts fra {selectedDate}:");
         }
         else
