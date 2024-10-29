@@ -1,0 +1,86 @@
+﻿@using DTO
+@using ForumApp.Services
+@code {
+    [Parameter]
+    public EventCallback<PostDTO> OnPostCreated { get; set; }
+
+    [Inject]
+    public IPostService PostService { get; set; } = default!;
+    
+    [Inject]
+    public AuthenticationService AuthService { get; set; } = default!;
+
+    private string newPostTitle = string.Empty;
+    private string newPostBody = string.Empty;
+    private bool isVisible = false;
+    private bool showAlert = false;
+
+    public void ShowModal()
+    {
+        isVisible = true;
+        showAlert = false; 
+    }
+
+    private void HideModal()
+    {
+        newPostTitle = string.Empty;
+        newPostBody = string.Empty;
+        isVisible = false;
+        showAlert = false;
+    }
+
+    private async Task SavePostAsync()
+    {
+        if (!AuthService.IsLoggedIn)
+        {
+            showAlert = true; 
+            Console.Error.WriteLine("User must be logged in to create a post.");
+            return;
+        }
+
+        var newPost = new CreatePostDTO
+        {
+            Title = newPostTitle,
+            Body = newPostBody,
+            AuthorId = AuthService.UserId
+        };
+
+        var createdPost = await PostService.AddPostAsync(newPost);
+        await OnPostCreated.InvokeAsync(createdPost);
+        HideModal();
+    }
+}
+
+@if (isVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Post</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                
+                <div class="modal-body">
+
+                    @if (showAlert)
+                    {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        You need to log in to create a post.
+                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
+                    </div>
+                    }
+                    
+                    
+                    <input type="text" class="form-control mb-3" placeholder="Post Title" @bind="newPostTitle"/>
+                    <textarea class="form-control" placeholder="Post Content" @bind="newPostBody"></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SavePostAsync">Save Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

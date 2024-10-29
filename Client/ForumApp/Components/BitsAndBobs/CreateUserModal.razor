@@ -1,0 +1,51 @@
+﻿@using ForumApp.Services
+@inject IUserService UserService
+@code {
+    [Parameter]
+    public EventCallback OnUserCreated { get; set; }
+    [Parameter]
+    public EventCallback<string> OnCreateFailure { get; set; }
+
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private bool isVisible = false;
+
+    public void ShowModal() => isVisible = true;
+    public void HideModal() => isVisible = false;
+
+    private async Task HandleCreateUserAsync()
+    {
+        bool success = await UserService.AddUserAsync(username, password);
+        if (success)
+        {
+            await OnUserCreated.InvokeAsync();
+            HideModal();
+        }
+        else
+        {
+            await OnCreateFailure.InvokeAsync("Failed to create user. Already have an account?");
+        }
+    }
+}
+
+@if (isVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create User</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username" />
+                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="HandleCreateUserAsync">Create user</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -2,6 +2,8 @@
 @inject AuthenticationService AuthService
 @inject IUserService UserService
 
+<LoginModal @ref="loginModal" OnLoginSuccess="HandleLoginSuccess" />
+<CreateUserModal @ref="createUserModal" OnUserCreated="HandleUserCreated" />
 
 <div class="top-row ps-3 navbar navbar-dark d-flex flex-column flex-shrink">
     <div class="container-fluid">
@@ -11,171 +13,55 @@
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
-
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    
     <nav class="flex-column mb-auto">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="user">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> User
             </NavLink>
         </div>
-        
+
         <hr/>
 
         <div class="nav-item px-3 d-flex flex-column align-items-center">
             @if (!AuthService.IsLoggedIn)
             {
-                <button class="btn btn-outline-light" @onclick="ShowLoginModal">Log in</button>
-                <button type="button" class="btn btn-outline-primary mt-4" @onclick="ShowCreateUserModal">Create User</button>
+                <button class="btn btn-outline-light" @onclick="loginModal.ShowModal">Log in</button>
+                <button type="button" class="btn btn-outline-primary mt-4" @onclick="createUserModal.ShowModal">Create User</button>
             }
             else
             {
-            <span class="text-white">Welcome, @authenticatedUsername!</span>
-            <button class="btn btn-outline-light btn-sm mt-4" @onclick="LogoutAsync">Log out</button>
+                <span class="text-white">Welcome, @authenticatedUsername!</span>
+                <button class="btn btn-outline-light btn-sm mt-4" @onclick="LogoutAsync">Log out</button>
             }
         </div>
     </nav>
 </div>
 
-@if (showLoginModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="z-index: 1000; background: rgba(0, 0, 0, 0.5);">
-        <div class="modal-dialog" style="z-index: 1100;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Login</h5>
-                    <button type="button" class="btn-close" @onclick="HideLoginModal"></button>
-                </div>
-                <div class="modal-body">
-                    @if (showAlert)
-                    {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        @alertMessage
-                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
-                    </div>
-                    }
-                    
-                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username"/>
-                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password"/>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" @onclick="HideLoginModal">Cancel</button>
-                    <button class="btn btn-primary" @onclick="LoginAsync">Log in</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
-@if (showCreateUserModal) {
-    <div class="modal fade show d-block" tabindex="-1" style="z-index: 1000; background: rgba(0, 0, 0, 0.5);">
-        <div class="modal-dialog" style="z-index: 1100;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create user</h5>
-                    <button type="button" class="btn-close" @onclick="HideCreateUserModal"></button>
-                </div>
-                <div class="modal-body">
-                    @if (showAlert)
-                    {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        @alertMessage
-                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
-                    </div>
-                    }
-                    
-                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username"/>
-                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password"/>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" @onclick="HideCreateUserModal">Cancel</button>
-                    <button class="btn btn-primary" @onclick="createUserAsync">Create user</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
 @code {
-    private bool showLoginModal = false;
-    private bool showCreateUserModal = false; 
-    private string username = string.Empty; 
-    private string password = string.Empty;
-    private string authenticatedUsername = string.Empty; 
-    
-    private bool showAlert = false;
-    private string alertMessage = string.Empty;
+    private LoginModal? loginModal;
+    private CreateUserModal? createUserModal;
 
-    private void ShowLoginModal()
+    private string authenticatedUsername = string.Empty;
+
+    private void HandleLoginSuccess()
     {
-        showLoginModal = true; 
+        authenticatedUsername = AuthService.Username;
     }
 
-    private void HideLoginModal()
+    private void HandleUserCreated()
     {
-        showLoginModal = false;
-        ResetInputFields();
-    }
-
-    private void ShowCreateUserModal()
-    {
-        showCreateUserModal = true; 
-    }
-
-    private void HideCreateUserModal()
-    {
-        showCreateUserModal = false; 
-        ResetInputFields();
-    }
-
-    private async Task createUserAsync()
-    {
-        bool success = await UserService.AddUserAsync(username, password);
-
-        if (success)
-        {
-            HideCreateUserModal();
-        }
-        else
-        {
-            ShowAlert("Failed to create user. Please try again.");
-        }
-    }
-
-    private void ResetInputFields()
-    {
-        username = string.Empty;
-        password = string.Empty; 
-    }
-
-    private async Task LoginAsync()
-    {
-        bool success = await AuthService.LoginAsync(username, password);
-        if (success)
-        {
-            authenticatedUsername = AuthService.Username;
-            HideLoginModal();
-        } else {
-            ShowAlert("Login failed. Please check your username and password.");
-        }
+        // not implemented yes
     }
 
     private async Task LogoutAsync()
     {
-        AuthService.LogoutAsync();
+        await AuthService.LogoutAsync();
+        authenticatedUsername = string.Empty;
     }
-    
-    private void ShowAlert(string message)
-    {
-        alertMessage = message;
-        showAlert = true;
-    }
-
 }

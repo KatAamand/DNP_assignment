@@ -1,161 +1,33 @@
 ﻿@page "/"
 @using DTO
-@using ForumApp.Services
-@inject IPostService PostService; 
-@inject AuthenticationService AuthService
-@inject ICommentService CommentService; 
 
 <PageTitle>Home</PageTitle>
 
 <div class="d-flex justify-content-center align-items-center flex-grow-1 flex-column">
     <h1 class="pb-5">Welcome to the forum</h1>
+
+    <PostList @ref="postList" />
     
-    @if (posts == null)
-    {
-        
-            <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Success" />
-            <p>loading...</p>
-    }
+    <CreatePostModal @ref="createPostModal" OnPostCreated="HandlePostCreated" />
 
-    @if (posts.Count == 0)
-    {
-        <p class="text-muted">No posts yet</p>
-    }
-
-    <div class="card-container row w-100">
-            
-        @foreach (var post in posts)
-        {
-            <div class="col-sm-3 mb-3">
-                <div class="card" style="z-index: 10;">
-                    <div class="card-body">
-                        <h5 class="card-title">@post.Title</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"><small>@post.Created</small></h6>
-                        <div class="d-flex justify-content-between">
-                            <a href="#" class="card-link">View post</a>
-                            
-                            <!-- Display comment count with icon -->
-                            @{
-                                int commentCount = commentCounts.ContainsKey(post.Id) ? commentCounts[post.Id] : 0;
-                            }
-                            <span class="d-flex align-items-center">
-                                <small class="text-muted me-2">
-                                   @commentCount 
-                                </small>
-                                <i class="bi bi-chat-left-quote text-muted"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-            
-    </div>
-
-    <!-- Floating Action Button -->
     <button @onclick="ShowCreatePostModal" class="btn btn-primary rounded-circle fab">
         <i class="bi bi-plus-lg"></i>
     </button>
-    
-    @if (showCreateNewPostModal)
-    {
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create New Post</h5>
-                        <button type="button" class="btn-close" @onclick="HideCreatePostModal"></button>
-                    </div>
-                    
-                    <div class="modal-body">
-                        <!-- Create new post form-->
-                        <input type="text" class="form-control mb-3" placeholder="Post Title" @bind="newPostTitle"/>
-                        <textarea class="form-control" placeholder="Post Content"@bind="newPostBody"></textarea>
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="HideCreatePostModal">Cancel</button>
-                        <button class="btn btn-primary" @onclick="SaveNewPostAsync">Save Post</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
 
 </div>
 
 @code {
+    private CreatePostModal? createPostModal;
+    private PostList? postList; 
 
-    private List<PostDTO>? posts = new();
-    bool showCreateNewPostModal = false;
-    private Dictionary<int, int> commentCounts = new();
-
-    // Properties for new post input
-    private string newPostTitle = string.Empty;
-    private string newPostBody = string.Empty;
-    private int authorId = 0;
-
-    protected override async Task OnInitializedAsync()
+    private void ShowCreatePostModal()
     {
-        try
-        {
-            posts = await PostService.GetPostsAsync();
-            
-            foreach (var post in posts)
-            {
-                commentCounts[post.Id] = await CommentService.GetCommentCountAsync(post.Id);
-            }
-            
-            posts = posts.OrderByDescending(post => post.Created).ToList();
-        }
-        catch (Exception e)
-        {
-            Console.Error.WriteLine($"Error fetching posts: ${e.Message}");
-            posts = new List<PostDTO>();
-        }
-    }
-    
-    private void ShowCreatePostModal() {
-        showCreateNewPostModal = true;     
+        createPostModal?.ShowModal();
     }
 
-    private void HideCreatePostModal()
+    private void HandlePostCreated(PostDTO newPost)
     {
-        newPostTitle = string.Empty;
-        newPostTitle = string.Empty;
-        showCreateNewPostModal = false;
-    }
-
-    private async Task SaveNewPostAsync()
-    {
-        try
-        {
-            if (!AuthService.IsLoggedIn)
-            {
-                Console.Error.WriteLine("User must be logged in to create a post.");
-                return;
-            }
-
-            var newPost = new CreatePostDTO
-            {
-                Title = newPostTitle,
-                Body = newPostBody,
-                AuthorId = AuthService.UserId
-            };
-
-            var createdPost = await PostService.AddPostAsync(newPost);
-
-            posts.Add(createdPost);
-
-            posts = posts.OrderByDescending(post => post.Created).ToList();
-
-            // Hide modal and reset input fields
-            HideCreatePostModal();
-        }
-        catch (Exception e)
-        {
-            Console.Error.WriteLine($"Error creating new post: {e.Message}");
-        }
+        postList?.AddPost(newPost);
     }
 
 }

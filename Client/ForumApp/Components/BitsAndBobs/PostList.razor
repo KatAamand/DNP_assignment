@@ -1,0 +1,74 @@
+﻿@using DTO
+@using ForumApp.Services
+
+@code {
+    [Inject]
+    public IPostService PostService { get; set; } = default!;
+    
+    [Inject]
+    public ICommentService CommentService { get; set; } = default!;
+
+    private List<PostDTO> posts = new();
+    private Dictionary<int, int> commentCounts = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPostsAsync(); 
+    }
+
+    private async Task LoadPostsAsync()
+    {
+        try
+        {
+            posts = await PostService.GetPostsAsync();
+
+            foreach (var post in posts)
+            {
+                commentCounts[post.Id] = await CommentService.GetCommentCountAsync(post.Id);
+            }
+
+            posts = posts.OrderByDescending(post => post.Created).ToList();
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Error fetcing posts: {e.Message}");
+        }
+        finally
+        {
+            isLoading = false; 
+        }
+    }
+
+    public void AddPost(PostDTO newPost)
+    {
+        posts.Insert(0, newPost);
+        
+        if (!commentCounts.ContainsKey(newPost.Id))
+        {
+            commentCounts[newPost.Id] = 0; // Assuming new posts start with zero comments
+        }
+        
+        StateHasChanged();
+    }
+
+}
+
+@if (isLoading)
+{
+    <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Success" />
+    <p>Loading...</p>
+}
+else if (posts.Count == 0)
+{
+    <p class="text-muted">No posts yet</p>
+}
+else
+{
+    <div class="row w-100">
+        @foreach (var post in posts)
+        {
+        <PostCard Post="post" CommentCount="@(commentCounts.ContainsKey(post.Id) ? commentCounts[post.Id] : 0)" />
+        }
+    </div>
+}
