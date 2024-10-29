@@ -13,5 +13,15 @@
     "Id": 3,
     "Username": "katrinekl\u00E6kl\u00E6",
     "Password": "12345"
+  },
+  {
+    "Id": 4,
+    "Username": "katrine",
+    "Password": "123455"
+  },
+  {
+    "Id": 5,
+    "Username": "katrine",
+    "Password": "12345"
   }
 ]

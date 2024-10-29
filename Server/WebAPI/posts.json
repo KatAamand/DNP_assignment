@@ -54,5 +54,69 @@
     "NoOfVotes": 0,
     "AuthorId": 1,
     "Created": "2024-10-28T22:25:40.911898+01:00"
+  },
+  {
+    "Id": 8,
+    "Title": "hej hej hej ",
+    "Body": "dette er en test",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T08:05:59.8049715+01:00"
+  },
+  {
+    "Id": 9,
+    "Title": "Lorem ipsum",
+    "Body": "ipsum ipsum ipsum :)",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T20:34:10.2923301+01:00"
+  },
+  {
+    "Id": 10,
+    "Title": "Testing new PostList update",
+    "Body": "Does it work? ",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T20:39:39.0808347+01:00"
+  },
+  {
+    "Id": 11,
+    "Title": "Testing once again",
+    "Body": "cccc",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T20:40:18.1311604+01:00"
+  },
+  {
+    "Id": 12,
+    "Title": "Testing alert link",
+    "Body": "tihi",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T21:46:46.4149684+01:00"
+  },
+  {
+    "Id": 13,
+    "Title": "Testing if alert hides after clicking login link",
+    "Body": "FDSFS",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T21:47:54.2372128+01:00"
+  },
+  {
+    "Id": 14,
+    "Title": "Testing alert hide again",
+    "Body": "gf",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-29T21:48:15.849968+01:00"
+  },
+  {
+    "Id": 15,
+    "Title": "This is a large post",
+    "Body": "@if (showAlert)\n                    {\n                    \u003Cdiv class=\u0022alert alert-warning alert-dismissible fade show mt-3 w-100\u0022 role=\u0022alert\u0022\u003E\n                        You need to log in to post a comment.\n                        \u003Cdiv class=\u0022mt-3\u0022\u003E\n                            \u003Cbutton @onclick=\u0022ShowLoginModal\u0022 class=\u0022btn btn-primary btn-sm me-2\u0022\u003ELog in\u003C/button\u003E\n                            \u003Cbutton @onclick=\u0022ShowCreateUserModal\u0022 class=\u0022btn btn-outline-dark btn-sm\u0022\u003ECreate User\u003C/button\u003E\n                        \u003C/div\u003E\n                        \u003Cbutton type=\u0022button\u0022 class=\u0022btn-close\u0022 @onclick=\u0022() =\u003E showAlert = false\u0022 aria-label=\u0022Close\u0022\u003E\u003C/button\u003E\n                    \u003C/div\u003E\n                    }\n                    \n                    \u003Cdiv class=\u0022w-100\u0022\u003E\n                        \u003CEditForm Model=\u0022newComment\u0022 OnValidSubmit=\u0022HandleValidSubmit\u0022\u003E\n                            \u003CDataAnnotationsValidator /\u003E\n                            \u003CValidationSummary /\u003E\n                            \n                            \u003Cdiv class=\u0022input-group input-group-sm mb-3\u0022\u003E\n                                \u003CInputText id=\u0022comment\u0022 class=\u0022form-control\u0022 @bind-Value=\u0022newComment.Body\u0022 placeholder=\u0022Write your comment...\u0022/\u003E\n                                \u003Cbutton class=\u0022btn btn-outline-secondary\u0022 type=\u0022submit\u0022\u003EComment\u003C/button\u003E\n                            \u003C/div\u003E\n                        \u003C/EditForm\u003E\n                        \n                    \u003C/div\u003E",
+    "NoOfVotes": 0,
+    "AuthorId": 1,
+    "Created": "2024-10-30T00:04:37.2227594+01:00"
   }
 ]
