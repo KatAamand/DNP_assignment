@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-center align-items-center flex-grow-1 flex-column">
     <h1 class="pb-5">Welcome to the forum</h1>
 
-    <PostList @ref="postList" />
+    <PostList @ref="postList" OnViewPostClicked="ShowPostDetails"/>
     
     <CreatePostModal @ref="createPostModal" OnPostCreated="HandlePostCreated" />
 
@@ -14,11 +14,13 @@
         <i class="bi bi-plus-lg"></i>
     </button>
 
+    <PostDetails @ref="postDetails" />
 </div>
 
 @code {
     private CreatePostModal? createPostModal;
-    private PostList? postList; 
+    private PostList? postList;
+    private PostDetails? postDetails; 
 
     private void ShowCreatePostModal()
     {
@@ -28,6 +30,14 @@
     private void HandlePostCreated(PostDTO newPost)
     {
         postList?.AddPost(newPost);
+    }
+
+    private async Task ShowPostDetails(int postId)
+    {
+        if (postDetails != null)
+        {
+            await postDetails.ShowModal(postId);
+        }
     }
 
 }

@@ -2,6 +2,9 @@
 @using ForumApp.Services
 
 @code {
+    [Parameter]
+    public EventCallback<int> OnViewPostClicked { get; set; }
+    
     [Inject]
     public IPostService PostService { get; set; } = default!;
     
@@ -32,7 +35,7 @@
         }
         catch (Exception e)
         {
-            Console.Error.WriteLine($"Error fetcing posts: {e.Message}");
+            Console.Error.WriteLine($"Error fetching posts: {e.Message}");
         }
         finally
         {
@@ -40,18 +43,17 @@
         }
     }
 
+    private Task ViewPost(int postId)
+    {
+        return OnViewPostClicked.InvokeAsync(postId); 
+    }
+
     public void AddPost(PostDTO newPost)
     {
         posts.Insert(0, newPost);
-        
-        if (!commentCounts.ContainsKey(newPost.Id))
-        {
-            commentCounts[newPost.Id] = 0; // Assuming new posts start with zero comments
-        }
-        
+        commentCounts[newPost.Id] = 0; 
         StateHasChanged();
     }
-
 }
 
 @if (isLoading)
@@ -68,7 +70,8 @@ else
     <div class="row w-100">
         @foreach (var post in posts)
         {
-        <PostCard Post="post" CommentCount="@(commentCounts.ContainsKey(post.Id) ? commentCounts[post.Id] : 0)" />
+            <PostCard Post="post" CommentCount="@(commentCounts.ContainsKey(post.Id) ? commentCounts[post.Id] : 0)" 
+                      OnViewPostClicked="ViewPost" />
         }
     </div>
 }

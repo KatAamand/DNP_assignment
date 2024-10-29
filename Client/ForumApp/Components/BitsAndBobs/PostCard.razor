@@ -2,13 +2,8 @@
 
 @code {
     [Parameter] public PostDTO Post { get; set; }
-
     [Parameter] public int CommentCount { get; set; }
-
-    private void ViewPost()
-    {
-        // Code for opening post details view
-    }
+    [Parameter] public EventCallback<int> OnViewPostClicked { get; set; }
 
 }
     
@@ -20,7 +15,7 @@
                     <small>@Post.Created</small>
                 </h6>
                 <div class="d-flex justify-content-between">
-                    <a href="#" @onclick="ViewPost" class="card-link">View post</a>
+                    <a href="#" @onclick="() => OnViewPostClicked.InvokeAsync(Post.Id)" class="card-link">View post</a>
                     <span class="d-flex align-items-center">
                         <small class="text-muted me-2">@CommentCount</small>
                         <i class="bi bi-chat-left-quote text-muted"></i>
