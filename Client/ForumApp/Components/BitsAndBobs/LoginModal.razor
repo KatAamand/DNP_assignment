@@ -10,8 +10,17 @@ private string username = string.Empty;
 private string password = string.Empty;
 private bool isVisible = false;
 
-public void ShowModal() => isVisible = true;
-public void HideModal() => isVisible = false;
+public void ShowModal()
+{
+    isVisible = true;
+    StateHasChanged();
+}
+
+public void HideModal()
+{
+    isVisible = false;
+    StateHasChanged();
+}
 
 private async Task HandleLoginAsync()
 {
@@ -30,7 +39,7 @@ await OnLoginFailure.InvokeAsync("Login failed. Don't have an account?");
 
 @if (isVisible)
 {
-<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5); z-index: 1101;">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

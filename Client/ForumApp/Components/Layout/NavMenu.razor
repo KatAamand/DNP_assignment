@@ -20,19 +20,14 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="user">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> User
-            </NavLink>
-        </div>
 
         <hr/>
 
         <div class="nav-item px-3 d-flex flex-column align-items-center">
             @if (!AuthService.IsLoggedIn)
             {
-                <button class="btn btn-outline-light" @onclick="loginModal.ShowModal">Log in</button>
-                <button type="button" class="btn btn-outline-primary mt-4" @onclick="createUserModal.ShowModal">Create User</button>
+                <button class="btn btn-outline-primary" @onclick="ShowLoginModal">Log in</button>
+                <button type="button" class="btn btn-outline-light mt-4" @onclick="ShowCreateUserModal">Create User</button>
             }
             else
             {
@@ -48,6 +43,16 @@
     private CreateUserModal? createUserModal;
 
     private string authenticatedUsername = string.Empty;
+
+    private void ShowLoginModal()
+    {
+        loginModal?.ShowModal();
+    }
+
+    private void ShowCreateUserModal()
+    {
+        createUserModal?.ShowModal();
+    }
 
     private void HandleLoginSuccess()
     {
