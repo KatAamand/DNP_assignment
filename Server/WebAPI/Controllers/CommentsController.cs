@@ -34,17 +34,21 @@ namespace WebAPI.Controllers
             {
                 Body = commentRequest.Body,
                 AuthorId = commentRequest.AuthorId,
-                PostId = commentRequest.PostId
+                PostId = commentRequest.PostId,
             };
 
             var createdComment = await _commentRepository.AddAsync(newComment);
+            
+            var author = await _userRepository.GetSingleAsync(createdComment.AuthorId);
 
             var commentDTO = new CommentDTO
             {
                 Id = createdComment.Id,
                 Body = createdComment.Body,
                 AuthorId = createdComment.AuthorId,
-                PostId = createdComment.PostId
+                AuthorUsername = author?.Username ?? "Unknown",
+                PostId = createdComment.PostId,
+                Created = createdComment.Created
             };
 
             return Created($"/Comments/{commentDTO.Id}", commentDTO);
@@ -61,18 +65,22 @@ namespace WebAPI.Controllers
                 return NotFound();
             }
 
+            var author = await _userRepository.GetSingleAsync(comment.AuthorId);
+
             var commentDTO = new CommentDTO
             {
                 Id = comment.Id,
                 Body = comment.Body,
                 AuthorId = comment.AuthorId,
-                PostId = comment.PostId
+                AuthorUsername = author?.Username ?? "Unknown",
+                PostId = comment.PostId,
+                Created = comment.Created
             };
 
             return Ok(commentDTO);
         }
 
-        // Get all comments
+        // Get all comments, with optional filtering by PostId or AuthorId
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CommentDTO>>> GetAllComments([FromQuery] int? postId, [FromQuery] int? authorId)
         {
@@ -88,12 +96,16 @@ namespace WebAPI.Controllers
                 comments = comments.Where(c => c.AuthorId == authorId.Value);
             }
 
+            var users = (await _userRepository.GetManyAsync()).ToDictionary(u => u.Id, u => u.Username);
+
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
                 Body = c.Body,
                 AuthorId = c.AuthorId,
-                PostId = c.PostId
+                AuthorUsername = users.ContainsKey(c.AuthorId) ? users[c.AuthorId] : "Unknown",
+                PostId = c.PostId,
+                Created = c.Created
             }).ToList();
 
             return Ok(commentDtos);

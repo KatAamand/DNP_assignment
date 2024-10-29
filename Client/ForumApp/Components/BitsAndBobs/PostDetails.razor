@@ -1,0 +1,144 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using ForumApp.Services
+@using DTO
+@inject IPostService PostService; 
+@inject ICommentService CommentService; 
+@inject AuthenticationService AuthService;
+
+<LoginModal @ref="loginModal" />
+<CreateUserModal @ref="createUserModal" />
+
+@if (isVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@post?.Title</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@post?.Body</p>
+                </div>
+                <div class="modal-footer justify-content-center flex-column overflow-y-scroll">
+                    <h6>Comments</h6>
+                    <div class="list-group w-100">
+                        @foreach (var comment in comments)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <p class="mb-1">@comment.AuthorUsername</p>
+                                    <small class="text-muted">@comment.Created</small>
+                                </div>
+                                <p class="mb-1"><small>@comment.Body</small></p>
+                            </div>
+                        }
+                    </div>
+
+                    @if (showAlert)
+                    {
+                    <div class="alert alert-warning alert-dismissible fade show mt-3 w-100" role="alert">
+                        You need to log in to post a comment.
+                        <div class="mt-3">
+                            <button @onclick="ShowLoginModal" class="btn btn-primary btn-sm me-2">Log in</button>
+                            <button @onclick="ShowCreateUserModal" class="btn btn-outline-dark btn-sm">Create User</button>
+                        </div>
+                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
+                    </div>
+                    }
+                    
+                    <div class="w-100">
+                        <EditForm Model="newComment" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            
+                            <div class="input-group input-group-sm mb-3">
+                                <InputText id="comment" class="form-control" @bind-Value="newComment.Body" placeholder="Write your comment..."/>
+                                <button class="btn btn-outline-secondary" type="submit">Comment</button>
+                            </div>
+                        </EditForm>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter] public int PostId { get; set; }
+    
+    private PostDTO? post;
+    private List<CommentDTO> comments = new(); 
+    private bool isVisible;
+    private CreateCommentDTO? newComment = new(); 
+    private bool showAlert = false;
+    private CreateUserModal? createUserModal;
+    private LoginModal? loginModal;
+
+    public async Task ShowModal(int postId)
+    {
+        PostId = postId;
+        isVisible = true;
+        await LoadPostDetailsAsync(); 
+        StateHasChanged();
+    }
+
+    private void HideModal()
+    {
+        isVisible = false;
+        post = null;
+        comments = new(); 
+        showAlert = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadPostDetailsAsync()
+    {
+        try
+        {
+            post = await PostService.GetPostAsync(PostId);
+            comments = await CommentService.GetCommentsAsync(postId: PostId);
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Error fetching post and/or comments : {e.Message}");
+            post = null;
+            comments = new();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (!AuthService.IsLoggedIn)
+        {
+            showAlert = true; 
+            return;
+        }
+        
+        newComment.AuthorId = AuthService.UserId;
+        newComment.PostId = PostId;
+        
+        CommentDTO createdComment = await CommentService.AddCommentAsync(newComment);
+
+        comments.Add(createdComment);
+        
+        newComment.Body = string.Empty;
+        
+        StateHasChanged();
+    }
+    
+    private void ShowLoginModal()
+    {
+        loginModal?.ShowModal();
+        showAlert = false; 
+    }
+    
+    private void ShowCreateUserModal()
+    {
+        createUserModal?.ShowModal();
+        showAlert = false; 
+    }
+
+}
