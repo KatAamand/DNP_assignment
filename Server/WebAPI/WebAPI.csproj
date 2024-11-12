@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Shared\Converter\Converter.csproj" />
       <ProjectReference Include="..\..\Shared\DTO\DTO.csproj" />
       <ProjectReference Include="..\Entities\Entities.csproj" />
       <ProjectReference Include="..\FileIORepositories\FileIORepositories.csproj" />

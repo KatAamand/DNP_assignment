@@ -1,9 +1,10 @@
-﻿@using ForumApp.Services
-@inject AuthenticationService AuthService
+﻿@using ForumApp.Components.Authentication
+@using ForumApp.Services
+@inject AuthenticationStateProvider AuthProvider
 @inject IUserService UserService
 
-<LoginModal @ref="loginModal" OnLoginSuccess="HandleLoginSuccess" />
-<CreateUserModal @ref="createUserModal" OnUserCreated="HandleUserCreated" />
+<LoginModal @ref="loginModal"/>
+<CreateUserModal @ref="createUserModal"/>
 
 <div class="top-row ps-3 navbar navbar-dark d-flex flex-column flex-shrink">
     <div class="container-fluid">
@@ -24,16 +25,17 @@
         <hr/>
 
         <div class="nav-item px-3 d-flex flex-column align-items-center">
-            @if (!AuthService.IsLoggedIn)
-            {
-                <button class="btn btn-outline-primary" @onclick="ShowLoginModal">Log in</button>
-                <button type="button" class="btn btn-outline-light mt-4" @onclick="ShowCreateUserModal">Create User</button>
-            }
-            else
-            {
-                <span class="text-white">Welcome, @authenticatedUsername!</span>
-                <button class="btn btn-outline-light btn-sm mt-4" @onclick="LogoutAsync">Log out</button>
-            }
+            <AuthorizeView>
+                <NotAuthorized>
+                    <button class="btn btn-outline-primary" @onclick="ShowLoginModal">Log in</button>
+                    <button type="button" class="btn btn-outline-light mt-4" @onclick="ShowCreateUserModal">Create User</button>
+                </NotAuthorized>
+                <Authorized>
+                    <span class="text-white">Welcome, @context.User.Identity.Name!</span>
+                    <button class="btn btn-outline-light btn-sm mt-4" @onclick="LogoutAsync">Log out</button>
+                </Authorized>
+            </AuthorizeView>
+            
         </div>
     </nav>
 </div>
@@ -41,9 +43,7 @@
 @code {
     private LoginModal? loginModal;
     private CreateUserModal? createUserModal;
-
-    private string authenticatedUsername = string.Empty;
-
+    
     private void ShowLoginModal()
     {
         loginModal?.ShowModal();
@@ -54,19 +54,10 @@
         createUserModal?.ShowModal();
     }
 
-    private void HandleLoginSuccess()
-    {
-        authenticatedUsername = AuthService.Username;
-    }
-
-    private void HandleUserCreated()
-    {
-        // not implemented yes
-    }
-
     private async Task LogoutAsync()
     {
-        await AuthService.LogoutAsync();
-        authenticatedUsername = string.Empty;
+        ((SimpleAuthProvider)AuthProvider).Logout();
+
+        await InvokeAsync(StateHasChanged);
     }
 }

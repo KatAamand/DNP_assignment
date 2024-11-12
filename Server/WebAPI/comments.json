@@ -78,5 +78,13 @@
     "AuthorUsername": null,
     "PostId": 15,
     "Created": "0001-01-01T00:00:00"
+  },
+  {
+    "Id": 11,
+    "Body": "another one",
+    "AuthorId": 1,
+    "AuthorUsername": null,
+    "PostId": 15,
+    "Created": "0001-01-01T00:00:00"
   }
 ]

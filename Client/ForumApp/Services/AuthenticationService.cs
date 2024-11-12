@@ -34,7 +34,7 @@ public class AuthenticationService : IAuthenticationService
         try
         {
             // Send the POST request to the server
-            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("/users/login", request);
+            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("auth/login", request);
 
             if (httpResponse.IsSuccessStatusCode)
             {
@@ -43,8 +43,8 @@ public class AuthenticationService : IAuthenticationService
                 if (response != null && response.IsAuthenticated)
                 {
                     IsLoggedIn = true;
-                    UserId = response.UserId;
-                    Username = username; 
+                    UserId = response.UserDto.Id;
+                    Username = response.UserDto.Username;
                     return true;
                 }
             }

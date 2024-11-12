@@ -1,9 +1,11 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using ForumApp.Services
+@using ForumApp.Components.Authentication
 @using DTO
 @inject IPostService PostService; 
 @inject ICommentService CommentService; 
-@inject AuthenticationService AuthService;
+@inject UserSessionService UserSessionService;
+@inject AuthenticationStateProvider AuthProvider;
 
 <LoginModal @ref="loginModal" />
 <CreateUserModal @ref="createUserModal" />
@@ -35,30 +37,31 @@
                         }
                     </div>
 
-                    @if (showAlert)
-                    {
-                    <div class="alert alert-warning alert-dismissible fade show mt-3 w-100" role="alert">
-                        You need to log in to post a comment.
-                        <div class="mt-3">
-                            <button @onclick="ShowLoginModal" class="btn btn-primary btn-sm me-2">Log in</button>
-                            <button @onclick="ShowCreateUserModal" class="btn btn-outline-dark btn-sm">Create User</button>
-                        </div>
-                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
-                    </div>
-                    }
-                    
-                    <div class="w-100">
-                        <EditForm Model="newComment" OnValidSubmit="HandleValidSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-                            
-                            <div class="input-group input-group-sm mb-3">
-                                <InputText id="comment" class="form-control" @bind-Value="newComment.Body" placeholder="Write your comment..."/>
-                                <button class="btn btn-outline-secondary" type="submit">Comment</button>
+                    <AuthorizeView>
+                        <NotAuthorized>
+                            <div class="alert alert-warning alert-dismissible fade show mt-3 w-100" role="alert">
+                                You need to log in to post a comment.
+                                <div class="mt-3">
+                                    <button @onclick="ShowLoginModal" class="btn btn-primary btn-sm me-2">Log in</button>
+                                    <button @onclick="ShowCreateUserModal" class="btn btn-outline-dark btn-sm">Create User</button>
+                                </div>
                             </div>
-                        </EditForm>
-                        
-                    </div>
+                        </NotAuthorized>
+                        <Authorized>
+                            <div class="w-100">
+                                <EditForm Model="newComment" OnValidSubmit="HandleValidSubmit">
+                                    <DataAnnotationsValidator />
+                                    <ValidationSummary />
+
+                                    <div class="input-group input-group-sm mb-3">
+                                        <InputText id="comment" class="form-control" @bind-Value="newComment.Body" placeholder="Write your comment..."/>
+                                        <button class="btn btn-outline-secondary" type="submit">Comment</button>
+                                    </div>
+                                </EditForm>
+
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
         </div>
@@ -73,7 +76,6 @@
     private List<CommentDTO> comments = new(); 
     private bool isVisible;
     private CreateCommentDTO? newComment = new(); 
-    private bool showAlert = false;
     private CreateUserModal? createUserModal;
     private LoginModal? loginModal;
 
@@ -90,7 +92,6 @@
         isVisible = false;
         post = null;
         comments = new(); 
-        showAlert = false;
         StateHasChanged();
     }
 
@@ -111,13 +112,15 @@
 
     private async Task HandleValidSubmit()
     {
-        if (!AuthService.IsLoggedIn)
-        {
-            showAlert = true; 
-            return;
-        }
+        var currentUser = UserSessionService.CurrentUser;
         
-        newComment.AuthorId = AuthService.UserId;
+        if (currentUser == null)
+        {
+            throw new InvalidOperationException("User is not logged in.");
+        }
+
+
+        newComment.AuthorId = currentUser.Id;
         newComment.PostId = PostId;
         
         CommentDTO createdComment = await CommentService.AddCommentAsync(newComment);
@@ -132,13 +135,11 @@
     private void ShowLoginModal()
     {
         loginModal?.ShowModal();
-        showAlert = false; 
     }
     
     private void ShowCreateUserModal()
     {
         createUserModal?.ShowModal();
-        showAlert = false; 
     }
 
 }

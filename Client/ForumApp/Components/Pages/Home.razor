@@ -10,9 +10,13 @@
     
     <CreatePostModal @ref="createPostModal" OnPostCreated="HandlePostCreated" />
 
-    <button @onclick="ShowCreatePostModal" class="btn btn-primary rounded-circle fab">
-        <i class="bi bi-plus-lg"></i>
-    </button>
+    <AuthorizeView>
+        <Authorized>
+            <button @onclick="ShowCreatePostModal" class="btn btn-primary rounded-circle fab">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+        </Authorized>
+    </AuthorizeView>
 
     <PostDetails @ref="postDetails" />
 </div>

@@ -1,5 +1,7 @@
 using ForumApp.Components;
+using ForumApp.Components.Authentication;
 using ForumApp.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,8 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<IPostService, HttpPostService>();
 builder.Services.AddScoped<IUserService, HttpUserService>();
 builder.Services.AddScoped<ICommentService, HttpCommentService>();
-builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddSingleton<UserSessionService>();
+builder.Services.AddScoped<AuthenticationStateProvider, SimpleAuthProvider>();
 
 
 var app = builder.Build();

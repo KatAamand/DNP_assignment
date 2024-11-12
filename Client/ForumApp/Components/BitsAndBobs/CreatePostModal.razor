@@ -1,7 +1,8 @@
 ﻿@using DTO
 @using ForumApp.Services
-@inject AuthenticationService AuthService
 @inject IPostService PostService
+@inject AuthenticationStateProvider AuthProvider
+@inject UserSessionService UserSessionService
 
 <LoginModal @ref="loginModal" />
 <CreateUserModal @ref="createUserModal" />
@@ -17,26 +18,30 @@
                 </div>
     
                 <div class="modal-body">
-                    @if (showAlert)
-                    {
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        You need to log in to create a post.
-                        <div class="mt-3">
-                            <button @onclick="ShowLoginModal" class="btn btn-primary btn-sm me-2">Log in</button>
-                            <button @onclick="ShowCreateUserModal" class="btn btn-outline-dark btn-sm">Create User</button>
-                        </div>
-    
-                        <button type="button" class="btn-close" @onclick="() => showAlert = false" aria-label="Close"></button>
-                    </div>
-                    }
-    
-                    <input type="text" class="form-control mb-3" placeholder="Post Title" @bind="newPostTitle" />
-                    <textarea class="form-control" placeholder="Post Content" @bind="newPostBody"></textarea>
+                    <AuthorizeView>
+                        <NotAuthorized>
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                You need to log in to create a post.
+                                <div class="mt-3">
+                                    <button @onclick="ShowLoginModal" class="btn btn-primary btn-sm me-2">Log in</button>
+                                    <button @onclick="ShowCreateUserModal" class="btn btn-outline-dark btn-sm">Create User</button>
+                                </div>
+                            </div>
+                        </NotAuthorized>
+                        <Authorized>
+                            <input type="text" class="form-control mb-3" placeholder="Post Title" @bind="newPostTitle" />
+                            <textarea class="form-control" placeholder="Post Content" @bind="newPostBody"></textarea>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
     
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="HideModal">Cancel</button>
-                    <button class="btn btn-primary" @onclick="SavePostAsync">Save Post</button>
+                    <AuthorizeView>
+                        <Authorized>
+                            <button class="btn btn-primary" @onclick="SavePostAsync">Save Post</button>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
         </div>
@@ -50,14 +55,12 @@
     private string newPostTitle = string.Empty;
     private string newPostBody = string.Empty;
     private bool isVisible = false;
-    private bool showAlert = false;
     private CreateUserModal? createUserModal;
     private LoginModal? loginModal;
     
     public void ShowModal()
     {
         isVisible = true;
-        showAlert = false;
     }
     
     private void HideModal()
@@ -65,23 +68,23 @@
         newPostTitle = string.Empty;
         newPostBody = string.Empty;
         isVisible = false;
-        showAlert = false;
     }
     
     private async Task SavePostAsync()
     {
-        if (!AuthService.IsLoggedIn)
+        var currentUser = UserSessionService.CurrentUser;
+        
+        if (currentUser == null)
         {
-            showAlert = true;
-            Console.Error.WriteLine("User must be logged in to create a post.");
-            return;
+            throw new InvalidOperationException("User is not logged in.");
         }
+
         
         var newPost = new CreatePostDTO
         {
             Title = newPostTitle,
             Body = newPostBody,
-            AuthorId = AuthService.UserId
+            AuthorId = currentUser.Id
         };
         
         var createdPost = await PostService.AddPostAsync(newPost);
@@ -92,12 +95,10 @@
     private void ShowLoginModal()
     {
         loginModal?.ShowModal();
-        showAlert = false; 
     }
     
     private void ShowCreateUserModal()
     {
         createUserModal?.ShowModal();
-        showAlert = false; 
     }
 }

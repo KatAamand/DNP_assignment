@@ -1,60 +1,70 @@
-﻿@using ForumApp.Services
-@inject AuthenticationService AuthService
+﻿@using ForumApp.Components.Authentication
+@inject AuthenticationStateProvider AuthProvider
 @code {
-[Parameter]
-public EventCallback OnLoginSuccess { get; set; }
-[Parameter]
-public EventCallback<string> OnLoginFailure { get; set; }
+    [Parameter] public EventCallback OnLoginSuccess { get; set; }
+    [Parameter] public EventCallback<string> OnLoginFailure { get; set; }
 
-private string username = string.Empty;
-private string password = string.Empty;
-private bool isVisible = false;
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private bool isVisible = false;
 
-public void ShowModal()
-{
-    isVisible = true;
-    StateHasChanged();
-}
+    public void ShowModal()
+    {
+        isVisible = true;
+        StateHasChanged();
+    }
 
-public void HideModal()
-{
-    isVisible = false;
-    StateHasChanged();
-}
+    private void HideModal()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
 
-private async Task HandleLoginAsync()
-{
-bool success = await AuthService.LoginAsync(username, password);
-if (success)
-{
-await OnLoginSuccess.InvokeAsync();
-HideModal();
-}
-else
-{
-await OnLoginFailure.InvokeAsync("Login failed. Don't have an account?");
-}
-}
+    private async Task HandleLoginAsync()
+    {
+        bool success = false; 
+        
+        try
+        {
+            success = await ((SimpleAuthProvider)AuthProvider).Login(username, password);
+            
+        }
+        catch (HttpRequestException e)
+        {
+            await OnLoginFailure.InvokeAsync("Login failed. Due to a network error or server issue " + e.Message);
+        }
+
+        if (success)
+        {
+            await OnLoginSuccess.InvokeAsync();
+            HideModal();
+        }
+        else
+        {
+            await OnLoginFailure.InvokeAsync("Login failed. Don't have an account?");
+        }
+    }
+
 }
 
 @if (isVisible)
 {
-<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5); z-index: 1101;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Login</h5>
-                <button type="button" class="btn-close" @onclick="HideModal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" class="form-control mb-3" placeholder="Username" @bind="username" />
-                <input type="password" class="form-control mb-3" placeholder="Password" @bind="password" />
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" @onclick="HideModal">Cancel</button>
-                <button class="btn btn-primary" @onclick="HandleLoginAsync">Log in</button>
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5); z-index: 1101;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username" />
+                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="HandleLoginAsync">Log in</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 }
