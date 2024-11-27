@@ -81,22 +81,17 @@ public class FileRepository<T> : IRepository<T> where T : class, IEntity
         return entities.AsQueryable();
     }
 
-    public async Task<T> GetSingleAsync(string identifier)
+    public async Task<T> GetSingleAsync(Func<T, bool> predicate)
     {
         var entities = await ReadFromFileAsync();
-        
-        if (typeof(T) == typeof(User))
-        {
-            var user = entities.OfType<User>().SingleOrDefault(u => u.Username == identifier);
-            if (user == null)
-            {
-                throw new KeyNotFoundException($"User with Username '{identifier}' not found");
-            }
+        var entity = entities.SingleOrDefault(predicate);
 
-            return (T)(IEntity)user;
+        if (entity == null)
+        {
+            throw new KeyNotFoundException($"Entity matching the predicate was not found.");
         }
 
-        throw new NotSupportedException($"GetSingleAsync(string) is not supported for type '{typeof(T).Name}'");
+        return entity;
     }
     
     // Count number of entities

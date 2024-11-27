@@ -88,7 +88,7 @@ public class InMemoryRepository<T> : IRepository<T> where T : class, IEntity
         return Task.FromResult(entities.AsQueryable());
     }
 
-    public async Task<T> GetSingleAsync(string identifier)
+    public async Task<T> GetSingleAsync(Func<T, bool> predicate)
     {
         throw new NotImplementedException();
     }

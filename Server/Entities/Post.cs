@@ -7,7 +7,11 @@ public class Post : IEntity
     public string Body { get; set; }
     public int NoOfVotes { get; set; }
     public int AuthorId { get; set; }
+    public User Author { get; set; }
     public DateTime Created { get; set; }
+    
+    public List<Comment> Comments { get; set; } = new();
+    
     
     public Post(){}
 

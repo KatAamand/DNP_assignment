@@ -5,8 +5,11 @@ public class Comment : IEntity
     public int Id { get; set; }
     public string Body { get; set; }
     public int AuthorId { get; set; }
+    public User Author { get; set; }
     public string AuthorUsername { get; set; }
     public int PostId { get; set; }
+    public Post post { get; set; }
+
     public DateTime Created { get; set; }
     
     public Comment(){}
@@ -14,7 +17,9 @@ public class Comment : IEntity
     public Comment(string body, int authorId, string authorUsername, int postId)
     {
         Body = body;
+        
         AuthorId = authorId;
+        
         PostId = postId;
         AuthorUsername = authorUsername;
         Created = DateTime.Now;
