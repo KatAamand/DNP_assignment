@@ -7,6 +7,7 @@
     private string username = string.Empty;
     private string password = string.Empty;
     private bool isVisible = false;
+    private string errorLabel; 
 
     public void ShowModal()
     {
@@ -22,7 +23,8 @@
 
     private async Task HandleLoginAsync()
     {
-        bool success = false; 
+        bool success = false;
+        errorLabel = ""; 
         
         try
         {
@@ -31,6 +33,7 @@
         }
         catch (HttpRequestException e)
         {
+            errorLabel = "Login failed, due to a network error: " + e.Message; 
             await OnLoginFailure.InvokeAsync("Login failed. Due to a network error or server issue " + e.Message);
         }
 
@@ -41,6 +44,7 @@
         }
         else
         {
+            errorLabel = "Login failed - login not recognized"; 
             await OnLoginFailure.InvokeAsync("Login failed. Don't have an account?");
         }
     }
@@ -57,8 +61,14 @@
                     <button type="button" class="btn-close" @onclick="HideModal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username" />
-                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password" />
+                    <input type="text" class="form-control mb-3" placeholder="Username" @bind="username"/>
+                    <input type="password" class="form-control mb-3" placeholder="Password" @bind="password"/>
+                    @if (!string.IsNullOrEmpty(errorLabel))
+                    {
+                    <label style="color: red">
+                        @errorLabel
+                    </label>
+                    }
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="HideModal">Cancel</button>

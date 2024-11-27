@@ -1,3 +1,4 @@
+using EfcRepositories;
 using Entities;
 using FileIORepositories;
 using RepositoryContracts;
@@ -11,9 +12,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IRepository<Post>>(provider => new FileRepository<Post>("posts.json"));
-builder.Services.AddScoped<IRepository<User>>(provider => new FileRepository<User>("users.json"));
-builder.Services.AddScoped<IRepository<Comment>>(provider => new FileRepository<Comment>("comments.json"));
+builder.Services.AddScoped<IRepository<Post>, Repository<Post>>();
+builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+builder.Services.AddScoped<IRepository<Comment>, Repository<Comment>>();
+builder.Services.AddDbContext<ForumContext>(); 
 
 var app = builder.Build();
 

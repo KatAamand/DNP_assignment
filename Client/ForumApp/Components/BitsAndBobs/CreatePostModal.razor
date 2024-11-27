@@ -2,7 +2,6 @@
 @using ForumApp.Services
 @inject IPostService PostService
 @inject AuthenticationStateProvider AuthProvider
-@inject UserSessionService UserSessionService
 
 <LoginModal @ref="loginModal" />
 <CreateUserModal @ref="createUserModal" />
@@ -57,10 +56,12 @@
     private bool isVisible = false;
     private CreateUserModal? createUserModal;
     private LoginModal? loginModal;
+    private int? currentUserId; 
     
-    public void ShowModal()
+    public async Task ShowModal()
     {
         isVisible = true;
+        await SetCurrentUserAsync();
     }
     
     private void HideModal()
@@ -68,13 +69,27 @@
         newPostTitle = string.Empty;
         newPostBody = string.Empty;
         isVisible = false;
+        StateHasChanged();
+    }
+    
+    private async Task SetCurrentUserAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var claimsPrincipal = authState.User;
+
+        if (claimsPrincipal.Identity is not null && claimsPrincipal.Identity.IsAuthenticated)
+        {
+            string? userIdAsString = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+            if (int.TryParse(userIdAsString, out int userId))
+            {
+                currentUserId = userId; 
+            }
+        }
     }
     
     private async Task SavePostAsync()
     {
-        var currentUser = UserSessionService.CurrentUser;
-        
-        if (currentUser == null)
+        if (currentUserId == null)
         {
             throw new InvalidOperationException("User is not logged in.");
         }
@@ -84,7 +99,7 @@
         {
             Title = newPostTitle,
             Body = newPostBody,
-            AuthorId = currentUser.Id
+            AuthorId = currentUserId.Value
         };
         
         var createdPost = await PostService.AddPostAsync(newPost);

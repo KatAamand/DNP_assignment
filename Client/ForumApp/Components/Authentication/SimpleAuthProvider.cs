@@ -1,28 +1,24 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Text.Json;
 using DTO;
 using ForumApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
 namespace ForumApp.Components.Authentication;
 
 public class SimpleAuthProvider : AuthenticationStateProvider
 {
     private readonly HttpClient _httpClient;
-    private UserSessionService _userSessionService;
-
-    public SimpleAuthProvider(HttpClient httpClient, UserSessionService userSessionService)
+    private readonly IJSRuntime _jsRuntime;
+    private UserDTO? _primaryUserCache; 
+    
+    public SimpleAuthProvider(HttpClient httpClient, IJSRuntime jsRuntime)
     {
         _httpClient = httpClient;
-        _userSessionService = userSessionService;
+        _jsRuntime = jsRuntime;
     }
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-    {
-        await _userSessionService.InitializeAsync();
-        var claimsPrincipal = _userSessionService.CurrentUser != null ? BuildClaimsPrincipal(_userSessionService.CurrentUser) : new ClaimsPrincipal();
-        return new AuthenticationState(claimsPrincipal);
-    }
 
     public async Task<bool> Login(string username, string password)
     {
@@ -33,10 +29,12 @@ public class SimpleAuthProvider : AuthenticationStateProvider
             throw new HttpRequestException($"Failed to login: invalid login response");
         }
 
-        UserDTO userDTO = loginResponse.UserDto;
-        await _userSessionService.SetCurrentUserAsync(userDTO);
+        _primaryUserCache = loginResponse.UserDto;
+        string serialisedData = JsonSerializer.Serialize(_primaryUserCache);
+        await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", serialisedData);
         
-        var claimsPrincipal = BuildClaimsPrincipal(userDTO);
+        var claimsPrincipal = BuildClaimsPrincipal(_primaryUserCache);
+        
         NotifyAuthenticationStateChanged((Task.FromResult(new AuthenticationState(claimsPrincipal))));
         
         return true;
@@ -44,9 +42,40 @@ public class SimpleAuthProvider : AuthenticationStateProvider
 
     public async Task Logout()
     {
-        await _userSessionService.ClearCurrentUserAsync();
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
+        _primaryUserCache = null; 
+        await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", "");
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new())));
     }
+    
+    
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        if (_primaryUserCache == null)
+        {
+            string userAsJson = "";
+
+            try
+            {
+                userAsJson = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "currentUser");
+            }
+            catch (InvalidOperationException e)
+            {
+                return new AuthenticationState(new()); 
+            }
+
+            if (string.IsNullOrEmpty(userAsJson))
+            {
+                return new AuthenticationState(new());
+            }
+        
+            _primaryUserCache = JsonSerializer.Deserialize<UserDTO>(userAsJson);
+        }
+        
+        ClaimsPrincipal claimsPrincipal = BuildClaimsPrincipal(_primaryUserCache);
+        return new AuthenticationState(claimsPrincipal);
+    }
+    
+    
     private async Task<LoginResponseDTO?> SendLoginRequestAsync(string username, string password)
     {
         HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("auth/login", new LoginRequestDTO(username, password));
@@ -69,6 +98,7 @@ public class SimpleAuthProvider : AuthenticationStateProvider
         };
 
         var identity = new ClaimsIdentity(claims, "apiauth");
+        
         return new ClaimsPrincipal(identity);
     }
     

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 using DTO;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ForumApp.Services;
 
@@ -8,10 +9,13 @@ public class HttpCommentService : ICommentService
 {
     HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly AuthenticationStateProvider _authprovider;
 
-    public HttpCommentService(HttpClient httpClient)
+    public HttpCommentService(HttpClient httpClient, AuthenticationStateProvider authProvider)
     {
         _httpClient = httpClient;
+        _authprovider = authProvider;
+
         _jsonSerializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -20,6 +24,24 @@ public class HttpCommentService : ICommentService
     
     public async Task<CommentDTO> AddCommentAsync(CreateCommentDTO newComment)
     {
+        // Get the current user from AuthenticationStateProvider
+        var authState = await _authprovider.GetAuthenticationStateAsync();
+        var claimsPrincipal = authState.User;
+
+        if (claimsPrincipal.Identity is null || !claimsPrincipal.Identity.IsAuthenticated)
+        {
+            throw new InvalidOperationException("User is not logged in");
+        }
+        
+        string? username = claimsPrincipal.Identity.Name;
+
+        if (string.IsNullOrEmpty(username))
+        {
+            throw new InvalidOperationException("Cannot determinate the username of the logged in user");
+        }
+        
+        newComment.AuthorName = username;
+
         HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync($"comments", newComment);
 
         if (!httpResponse.IsSuccessStatusCode)
@@ -27,13 +49,13 @@ public class HttpCommentService : ICommentService
             var errorMessage = await httpResponse.Content.ReadAsStringAsync();
             throw new HttpRequestException($"Error {httpResponse.ReasonPhrase}: {errorMessage}");
         }
-        
+
         var response = await httpResponse.Content.ReadFromJsonAsync<CommentDTO>(_jsonSerializerOptions);
         if (response == null)
         {
             throw new HttpRequestException($"Error {httpResponse.ReasonPhrase}");
         }
-        
+
         return response;
     }
 

@@ -31,7 +31,7 @@
                     <button type="button" class="btn btn-outline-light mt-4" @onclick="ShowCreateUserModal">Create User</button>
                 </NotAuthorized>
                 <Authorized>
-                    <span class="text-white">Welcome, @context.User.Identity.Name!</span>
+                    <span class="text-white">Welcome, @currentUsername!</span>
                     <button class="btn btn-outline-light btn-sm mt-4" @onclick="LogoutAsync">Log out</button>
                 </Authorized>
             </AuthorizeView>
@@ -43,10 +43,33 @@
 @code {
     private LoginModal? loginModal;
     private CreateUserModal? createUserModal;
-    
+    private string currentUsername;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthProvider.AuthenticationStateChanged += async (task) =>
+        {
+            await SetCurrentUserAsync();
+            StateHasChanged(); 
+        };
+
+        await SetCurrentUserAsync(); 
+    }
+
     private void ShowLoginModal()
     {
         loginModal?.ShowModal();
+    }
+        
+    private async Task SetCurrentUserAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var claimsPrincipal = authState.User;
+
+        if (claimsPrincipal.Identity is not null && claimsPrincipal.Identity.IsAuthenticated)
+        {
+            currentUsername = claimsPrincipal.Identity.Name; 
+        }
     }
 
     private void ShowCreateUserModal()
@@ -56,8 +79,8 @@
 
     private async Task LogoutAsync()
     {
-        ((SimpleAuthProvider)AuthProvider).Logout();
-
+        await ((SimpleAuthProvider)AuthProvider).Logout();
+        await SetCurrentUserAsync();
         await InvokeAsync(StateHasChanged);
     }
 }

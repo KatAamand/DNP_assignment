@@ -4,7 +4,6 @@
 @using DTO
 @inject IPostService PostService; 
 @inject ICommentService CommentService; 
-@inject UserSessionService UserSessionService;
 @inject AuthenticationStateProvider AuthProvider;
 
 <LoginModal @ref="loginModal" />
@@ -49,7 +48,7 @@
                         </NotAuthorized>
                         <Authorized>
                             <div class="w-100">
-                                <EditForm Model="newComment" OnValidSubmit="HandleValidSubmit">
+                                <EditForm Model="newComment" OnValidSubmit="HandleValidSubmit" Context="editFormContext">
                                     <DataAnnotationsValidator />
                                     <ValidationSummary />
 
@@ -78,14 +77,44 @@
     private CreateCommentDTO? newComment = new(); 
     private CreateUserModal? createUserModal;
     private LoginModal? loginModal;
+    private int? currentUserId;
+    private string? currentUsername; 
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await SetCurrentUserAsync();
+    }
 
     public async Task ShowModal(int postId)
     {
         PostId = postId;
         isVisible = true;
         await LoadPostDetailsAsync(); 
+        await SetCurrentUserAsync();
         StateHasChanged();
     }
+
+    private async Task SetCurrentUserAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var claimsPrincipal = authState.User;
+
+        if (claimsPrincipal.Identity is not null && claimsPrincipal.Identity.IsAuthenticated)
+        {
+            string? userIdAsString = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+            if (int.TryParse(userIdAsString, out int userId))
+            {
+                currentUserId = userId; 
+            }
+
+            currentUsername = claimsPrincipal.Identity.Name ?? throw new InvalidOperationException("Authenticated user does not have a username.");
+        }
+        else
+        {
+            currentUsername = string.Empty;
+        }
+    }
+
 
     private void HideModal()
     {
@@ -112,15 +141,13 @@
 
     private async Task HandleValidSubmit()
     {
-        var currentUser = UserSessionService.CurrentUser;
-        
-        if (currentUser == null)
+        if (currentUserId == null || string.IsNullOrEmpty(currentUsername))
         {
-            throw new InvalidOperationException("User is not logged in.");
+            throw new InvalidOperationException("User is not logged in or username could not be determined.");
         }
 
-
-        newComment.AuthorId = currentUser.Id;
+        newComment.AuthorName = currentUsername; 
+        newComment.AuthorId = currentUserId.Value;
         newComment.PostId = PostId;
         
         CommentDTO createdComment = await CommentService.AddCommentAsync(newComment);

@@ -10,8 +10,17 @@
     private string password = string.Empty;
     private bool isVisible = false;
 
-    public void ShowModal() => isVisible = true;
-    public void HideModal() => isVisible = false;
+    public void ShowModal()
+    {
+        isVisible = true;
+        StateHasChanged();
+    }
+
+    private void HideModal()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
 
     private async Task HandleCreateUserAsync()
     {

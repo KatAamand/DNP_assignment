@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApp", "Client\ForumApp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Converter", "Shared\Converter\Converter.csproj", "{055381E2-AF78-4F06-A8BA-C6A4F604F76B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EfcRepositories", "Server\EfcRepositories\EfcRepositories.csproj", "{038D5475-EC98-4566-B81F-3223DD63D910}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,7 @@ Global
 		{E749C92B-6BC2-43F5-9C62-656661DEA749} = {CABA5544-9139-4D3F-83D1-CCC4CA83EF2D}
 		{54BFD873-A71A-4B11-AA82-73C4CE236289} = {5FC56A47-C138-4A81-800A-94102F044471}
 		{055381E2-AF78-4F06-A8BA-C6A4F604F76B} = {CABA5544-9139-4D3F-83D1-CCC4CA83EF2D}
+		{038D5475-EC98-4566-B81F-3223DD63D910} = {CABA5544-9139-4D3F-83D1-CCC4CA83EF2D}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E749C92B-6BC2-43F5-9C62-656661DEA749}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -77,5 +80,9 @@ Global
 		{055381E2-AF78-4F06-A8BA-C6A4F604F76B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{055381E2-AF78-4F06-A8BA-C6A4F604F76B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{055381E2-AF78-4F06-A8BA-C6A4F604F76B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{038D5475-EC98-4566-B81F-3223DD63D910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{038D5475-EC98-4566-B81F-3223DD63D910}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{038D5475-EC98-4566-B81F-3223DD63D910}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{038D5475-EC98-4566-B81F-3223DD63D910}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
